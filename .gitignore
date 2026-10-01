@@ -1,0 +1,24 @@
+# Secrets
+.env
+.env *
+*.env
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Vector store (rebuilt by ingestion)
+backend/chroma_db/
+
+# Frontend
+node_modules/
+frontend/dist/
+
+# OS / editors
+.DS_Store
+.vscode/
+.idea/
