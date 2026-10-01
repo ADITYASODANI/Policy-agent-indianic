@@ -28,13 +28,17 @@ class Settings(BaseSettings):
     chroma_dir: Path = BACKEND_DIR / "chroma_db"
     chroma_collection: str = "company_policy"
     retrieval_k: int = 7
+    # "Explain the whole policy" questions send every chunk, up to this cap.
+    overview_max_chunks: int = 40
+    overview_max_tokens: int = 8000
 
     # Chunking
     chunk_size: int = 900
     chunk_overlap: int = 120
 
     # Policy source & metadata defaults (used when not detectable in the document)
-    policy_path: Path = BACKEND_DIR / "data" / "policy" / "code_of_conduct_v2.txt"
+    # Every PDF / DOCX / TXT / MD in this folder is ingested.
+    policy_dir: Path = BACKEND_DIR / "data" / "policy"
     policy_name: str = "Code of Conduct & Ethics"
     policy_version: str = "Version 2"
     policy_effective_date: str = "01 January 2026"

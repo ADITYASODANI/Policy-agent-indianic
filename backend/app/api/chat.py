@@ -43,6 +43,7 @@ def chat(req: ChatRequest) -> ChatResponse:
             found_in_policy=result.found_in_policy,
             session_id=req.session_id,
             timestamp=now,
+            language=result.language,
         )
     except history.HistoryUnavailable as exc:
         # The answer is still useful to the employee even if history can't be saved.
