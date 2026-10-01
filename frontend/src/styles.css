@@ -187,6 +187,7 @@ body {
 
 .bubble p {
   margin: 0 0 10px;
+  white-space: pre-line; /* keeps the line breaks of section-by-section overview answers */
 }
 
 .bubble p:last-child {

@@ -1,4 +1,5 @@
 function formatReference(ref) {
+  if (ref.label) return ref.label;
   return ref.section_number === "0"
     ? ref.section_title
     : `Section ${ref.section_number} — ${ref.section_title}`;

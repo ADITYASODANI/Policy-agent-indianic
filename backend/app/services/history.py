@@ -43,8 +43,13 @@ def save_turn(
     found_in_policy: bool,
     session_id: str | None,
     timestamp: datetime,
+    language: str = "English",
 ) -> None:
-    sections = [f"Section {r['section_number']}" for r in policy_references if r["section_number"] != "0"]
+    sections = [
+        f"Section {r['section_number']}" if r["section_number"].isdigit() else r.get("label") or r["section_title"]
+        for r in policy_references
+        if r["section_number"] != "0"
+    ]
     doc = {
         "question": question,
         "answer": answer,
@@ -53,6 +58,7 @@ def save_turn(
         "recommended_action": recommended_action,
         "found_in_policy": found_in_policy,
         "session_id": session_id,
+        "language": language,
         "timestamp": timestamp,
     }
     try:

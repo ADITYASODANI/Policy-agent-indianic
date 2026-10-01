@@ -12,6 +12,8 @@ class ChatRequest(BaseModel):
 class PolicyReference(BaseModel):
     section_number: str
     section_title: str
+    # Ready-to-show text, e.g. "Section 4 — Health & Safety" or "<policy name> — <section>".
+    label: str | None = None
 
 
 class ChatResponse(BaseModel):

@@ -122,11 +122,11 @@ cp .env.example .env               # then set GROQ_API_KEY and MONGODB_URI
 
 ```bash
 # from backend/ with the venv active
-python -m scripts.ingest                          # default: data/policy/code_of_conduct_v2.txt
-python -m scripts.ingest /path/to/policy.pdf      # or a PDF / DOCX
+python -m scripts.ingest                          # rebuild from every file in data/policy/
+python -m scripts.ingest /path/to/policy.pdf      # add / refresh one file (PDF, DOCX, TXT or MD)
 ```
 
-The first run downloads the embedding model (~130 MB) from HuggingFace. Re-run ingestion whenever the policy changes. It replaces the existing vectors.
+The first run downloads the embedding model (~130 MB) from HuggingFace. Re-run ingestion whenever a policy changes. Without a file it rebuilds the vectors from every policy in `data/policy/`; with a file it adds that policy, or replaces the earlier version of the same file name, and leaves the others alone.
 
 ### 3. Start the API
 
@@ -153,7 +153,7 @@ Open http://localhost:5173. In development, Vite proxies `/api` to `http://local
 | POST   | `/api/chat`             | `{"question": "...", "session_id": "optional"}` returns answer, `policy_references[]`, `recommended_action`, `found_in_policy` |
 | GET    | `/api/chat/history`     | `?session_id=...&limit=50` returns stored turns (all sessions if `session_id` is omitted) |
 | DELETE | `/api/chat/history`     | `?session_id=...` clears a conversation (used by "Clear chat") |
-| POST   | `/api/policy/ingest`    | Re-index the policy. Optional multipart `file` (PDF/DOCX/TXT). Without a file, the configured policy is used. |
+| POST   | `/api/policy/ingest`    | Add a policy: multipart `file` (PDF/DOCX/TXT/MD) adds it or replaces the same file name, leaving other policies untouched. Without a file, everything in the policy folder is re-indexed. |
 | GET    | `/api/policy/status`    | Whether the policy is ingested, and the chunk count |
 | GET    | `/api/health`           | Liveness check |
 
@@ -176,8 +176,10 @@ If MongoDB is down, chat keeps working and only history is unavailable (a 503 fr
 | `GROQ_REWRITE_MODEL` | `openai/gpt-oss-20b`                   | Fast model for query normalisation |
 | `EMBEDDING_MODEL`    | `BAAI/bge-small-en-v1.5`               | Re-run ingestion after changing it |
 | `RETRIEVAL_K`        | `7`                                    | Chunks sent to the LLM |
-| `POLICY_PATH`        | `data/policy/code_of_conduct_v2.txt`   | Relative to `backend/` when running from there |
+| `POLICY_DIR`         | `data/policy`                          | Folder whose PDF/DOCX/TXT/MD files are all ingested; relative to `backend/` when running from there |
 
 ## Updating the policy
 
-Replace the file in `backend/data/policy/` (or point `POLICY_PATH` at a PDF/DOCX), then run `python -m scripts.ingest` or call `POST /api/policy/ingest`. Sections are detected from numbered headings such as `4. EMPLOYEE HEALTH, SAFETY & WORKPLACE SECURITY`.
+Put each policy as its own file in `backend/data/policy/`, then run `python -m scripts.ingest` or call `POST /api/policy/ingest`. Restart the API afterwards so it picks up the rebuilt vectors.
+
+Sections are detected from numbered headings such as `4. EMPLOYEE HEALTH, SAFETY & WORKPLACE SECURITY`, or from markdown headings (`#### Maternity Leave`) for documents exported as markdown, where the first heading is taken as the policy name. Index and revision-history blocks are skipped. The Code of Conduct's version and effective date come from the settings defaults; other policies have none unless the text states them.
